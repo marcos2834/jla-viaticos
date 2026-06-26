@@ -36,8 +36,22 @@ if(cap&&cap.tope>0){const comparar=cap.unidad==='por noche'?(monto_por_noche||mo
 const id=uid();
 const timestamp=new Date().toISOString();
 const periodo=getPeriod(data.fecha_comprobante)||getPeriod(new Date().toISOString().slice(0,10));
-const row=[id,timestamp,data.titular||'',data.tarjeta||'',data.sociedad||'',periodo,data.fecha_comprobante||'',data.destino||'',data.categoria||'',data.proveedor||'',data.cuit||'',data.tipo_comprobante||'',data.numero||'',data.forma_pago||'',data.moneda||'ARS',data.subtotal||'',data.iva_21||'',data.iva_105||'','','','',montoTotal,data.noches||'',monto_por_noche||'',supera_tope?'TRUE':'FALSE',data.observaciones||'',fotoUrl,data.modo_carga||'Foto'];
-await sheets.spreadsheets.values.append({spreadsheetId:SHEET_ID,range:'Movimientos!A:AB',valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:[row]}});
+const row=[
+  id,timestamp,
+  data.titular||'',data.tarjeta||'',data.sociedad||'',
+  periodo,data.fecha_comprobante||'',
+  data.destino||'',data.categoria||'',
+  data.proveedor||'',data.cuit||'',
+  data.tipo_comprobante||'',data.numero||'',
+  data.forma_pago||'',data.moneda||'ARS',
+  data.subtotal||'',data.iva_21||'',data.iva_105||'',
+  '','','',
+  montoTotal,data.noches||'',monto_por_noche||'',
+  supera_tope?'TRUE':'FALSE',
+  data.observaciones||'',fotoUrl,data.modo_carga||'Foto',
+  data.cuil_titular||''
+];
+await sheets.spreadsheets.values.append({spreadsheetId:SHEET_ID,range:'Movimientos!A:AC',valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:[row]}});
 res.json({ok:true,id,supera_tope,foto_url:fotoUrl});
 }catch(e){console.error('submit error:',e.message,e.stack);res.status(500).json({error:e.message});}
-  }
+}
