@@ -51,11 +51,11 @@ export default function ConfirmStep({extracted,isManual,identity,onSubmit,onBack
           <Field label="IVA 21%"><input style={styles.input} type="number" step="0.01" value={form.iva_21} onChange={e=>set('iva_21',e.target.value)} placeholder="0.00"/></Field>Field>
           <Field label="IVA 10.5%"><input style={styles.input} type="number" step="0.01" value={form.iva_105} onChange={e=>set('iva_105',e.target.value)} placeholder="0.00"/></Field>Field>
           </div>div>)}
+          {!isFacA&&isManual&&(<Field label="Subtotal / monto neto"><input style={styles.input} type="number" step="0.01" value={form.subtotal} onChange={e=>set('subtotal',e.target.value)} placeholder="0.00"/></Field>Field>)}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
         <Field label="Moneda"><select style={{...styles.input,appearance:'none'}} value={form.moneda} onChange={e=>set('moneda',e.target.value)}>{MONEDAS.map(m=><option key={m}>{m}</option>option>)}</select>select></Field>Field>
         <Field label="Monto total *"><input style={styles.input} type="number" step="0.01" value={form.monto_total} onChange={e=>set('monto_total',e.target.value)} placeholder="0.00" required/></Field>Field>
         </div>div>
-          {!isFacA&&isManual&&(<Field label="Subtotal / monto neto"><input style={styles.input} type="number" step="0.01" value={form.subtotal} onChange={e=>set('subtotal',e.target.value)} placeholder="0.00"/></Field>Field>)}
         </div>div>
       <div style={ss}>
       <p style={st}>Clasificación</p>p>
