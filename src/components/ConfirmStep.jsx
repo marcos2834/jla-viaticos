@@ -6,7 +6,7 @@ const TIPOS=['Factura A','Factura B','Factura C','Ticket','Otro'];
 const MONEDAS=['ARS','USD','EUR'];
 const TIPOS_COMBUSTIBLE=['GNC','Nafta Super','Nafta Premium','Gasoil'];
 const CATS_PERSONAS=['Alojamiento','Desayuno','Almuerzo','Cena','Refrigerio'];
-function Field({label,children}){return(<div style={{marginBottom:'16px'}}><label style={styles.label}>{label}</label>label>{children}</div>div>);}
+function Field({label,children}){return(<div style={{marginBottom:'16px'}}><label style={styles.label}>{label}</label>{children}</div>);}
 export default function ConfirmStep({extracted,isManual,identity,onSubmit,onBack}){
   const[form,setForm]=useState({fecha_comprobante:extracted?.fecha_comprobante||'',proveedor:extracted?.proveedor||'',cuit:extracted?.cuit||'',tipo_comprobante:extracted?.tipo_comprobante||'Ticket',numero:extracted?.numero||'',moneda:extracted?.moneda||'ARS',subtotal:extracted?.subtotal||'',iva_21:extracted?.iva_21||'',iva_105:extracted?.iva_105||'',monto_total:extracted?.monto_total||'',observaciones:extracted?.observaciones||'',destino:'',categoria:'',forma_pago:'',noches:'',personas:'',litros:'',tipo_combustible:'GNC'});
   const[submitting,setSubmitting]=useState(false);
@@ -33,59 +33,59 @@ export default function ConfirmStep({extracted,isManual,identity,onSubmit,onBack
   const st={fontFamily:fonts.heading,fontWeight:700,fontSize:'13px',letterSpacing:'1px',color:colors.midGray,textTransform:'uppercase',marginBottom:'14px'};
   return(
     <div style={styles.card}>
-      <h2 style={{fontFamily:fonts.heading,fontWeight:700,fontSize:'20px',color:colors.red,marginBottom:'4px'}}>{isManual?'Datos del gasto':'Confirmar datos extraídos'}</h2>h2>
-      {!isManual&&<p style={{fontSize:'13px',color:colors.midGray,marginBottom:'20px'}}>Revisá y corregí los datos detectados por la IA si es necesario.</p>p>}
+      <h2 style={{fontFamily:fonts.heading,fontWeight:700,fontSize:'20px',color:colors.red,marginBottom:'4px'}}>{isManual?'Datos del gasto':'Confirmar datos extraídos'}</h2>
+      {!isManual&&<p style={{fontSize:'13px',color:colors.midGray,marginBottom:'20px'}}>Revisá y corregí los datos detectados por la IA si es necesario.</p>}
       <form onSubmit={handleSubmit}>
         <div style={ss}>
-          <p style={st}>Datos del comprobante</p>p>
-          <Field label="Destino *"><input style={styles.input} value={form.destino} onChange={e=>set('destino',e.target.value)} placeholder="Ej: Rosario, Mendoza…" required/></Field>Field>
-        <Field label="Fecha"><input style={styles.input} type="date" value={form.fecha_comprobante} onChange={e=>set('fecha_comprobante',e.target.value)}/></Field>Field>
-        <Field label="Proveedor / Razón social"><input style={styles.input} value={form.proveedor} onChange={e=>set('proveedor',e.target.value)} placeholder="Nombre del proveedor"/></Field>Field>
-        <Field label="CUIT"><input style={styles.input} value={form.cuit} onChange={e=>set('cuit',e.target.value)} placeholder="XX-XXXXXXXX-X"/></Field>Field>
+          <p style={st}>Datos del comprobante</p>
+          <Field label="Destino *"><input style={styles.input} value={form.destino} onChange={e=>set('destino',e.target.value)} placeholder="Ej: Rosario, Mendoza…" required/></Field>
+        <Field label="Fecha"><input style={styles.input} type="date" value={form.fecha_comprobante} onChange={e=>set('fecha_comprobante',e.target.value)}/></Field>
+        <Field label="Proveedor / Razón social"><input style={styles.input} value={form.proveedor} onChange={e=>set('proveedor',e.target.value)} placeholder="Nombre del proveedor"/></Field>
+        <Field label="CUIT"><input style={styles.input} value={form.cuit} onChange={e=>set('cuit',e.target.value)} placeholder="XX-XXXXXXXX-X"/></Field>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-        <Field label="Tipo comprobante"><select style={{...styles.input,appearance:'none'}} value={form.tipo_comprobante} onChange={e=>set('tipo_comprobante',e.target.value)}>{TIPOS.map(t=><option key={t}>{t}</option>option>)}</select>select></Field>Field>
-        <Field label="N° comprobante"><input style={styles.input} value={form.numero} onChange={e=>set('numero',e.target.value)} placeholder="0001-00012345"/></Field>Field>
-        </div>div>
+        <Field label="Tipo comprobante"><select style={{...styles.input,appearance:'none'}} value={form.tipo_comprobante} onChange={e=>set('tipo_comprobante',e.target.value)}>{TIPOS.map(t=><option key={t}>{t}</option>)}</select></Field>
+        <Field label="N° comprobante"><input style={styles.input} value={form.numero} onChange={e=>set('numero',e.target.value)} placeholder="0001-00012345"/></Field>
+        </div>
           {isFacA&&(<div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-          <Field label="Subtotal / monto neto"><input style={styles.input} type="number" step="0.01" value={form.subtotal} onChange={e=>set('subtotal',e.target.value)} placeholder="0.00"/></Field>Field>
-          <Field label="IVA 21%"><input style={styles.input} type="number" step="0.01" value={form.iva_21} onChange={e=>set('iva_21',e.target.value)} placeholder="0.00"/></Field>Field>
-          <Field label="IVA 10.5%"><input style={styles.input} type="number" step="0.01" value={form.iva_105} onChange={e=>set('iva_105',e.target.value)} placeholder="0.00"/></Field>Field>
-          </div>div>)}
-          {!isFacA&&isManual&&(<Field label="Subtotal / monto neto"><input style={styles.input} type="number" step="0.01" value={form.subtotal} onChange={e=>set('subtotal',e.target.value)} placeholder="0.00"/></Field>Field>)}
+          <Field label="Subtotal / monto neto"><input style={styles.input} type="number" step="0.01" value={form.subtotal} onChange={e=>set('subtotal',e.target.value)} placeholder="0.00"/></Field>
+          <Field label="IVA 21%"><input style={styles.input} type="number" step="0.01" value={form.iva_21} onChange={e=>set('iva_21',e.target.value)} placeholder="0.00"/></Field>
+          <Field label="IVA 10.5%"><input style={styles.input} type="number" step="0.01" value={form.iva_105} onChange={e=>set('iva_105',e.target.value)} placeholder="0.00"/></Field>
+          </div>)}
+          {!isFacA&&isManual&&(<Field label="Subtotal / monto neto"><input style={styles.input} type="number" step="0.01" value={form.subtotal} onChange={e=>set('subtotal',e.target.value)} placeholder="0.00"/></Field>)}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px'}}>
-        <Field label="Moneda"><select style={{...styles.input,appearance:'none'}} value={form.moneda} onChange={e=>set('moneda',e.target.value)}>{MONEDAS.map(m=><option key={m}>{m}</option>option>)}</select>select></Field>Field>
-        <Field label="Monto total *"><input style={styles.input} type="number" step="0.01" value={form.monto_total} onChange={e=>set('monto_total',e.target.value)} placeholder="0.00" required/></Field>Field>
-        </div>div>
-        </div>div>
+        <Field label="Moneda"><select style={{...styles.input,appearance:'none'}} value={form.moneda} onChange={e=>set('moneda',e.target.value)}>{MONEDAS.map(m=><option key={m}>{m}</option>)}</select></Field>
+        <Field label="Monto total *"><input style={styles.input} type="number" step="0.01" value={form.monto_total} onChange={e=>set('monto_total',e.target.value)} placeholder="0.00" required/></Field>
+        </div>
+        </div>
       <div style={ss}>
-      <p style={st}>Clasificación</p>p>
+      <p style={st}>Clasificación</p>
       <Field label="Categoría *">
       <select style={{...styles.input,appearance:'none',borderColor:!form.categoria?colors.red:colors.border}} value={form.categoria} onChange={e=>set('categoria',e.target.value)} required>
-      <option value="">— Seleccioná —</option>option>
-        {CATS.map(c=><option key={c}>{c}</option>option>)}
-      </select>select>
-      </Field>Field>
-        {form.categoria==='Alojamiento'&&(<Field label="Cantidad de noches *"><input style={styles.input} type="number" min="1" value={form.noches} onChange={e=>set('noches',e.target.value)} placeholder="1" required/></Field>Field>)}
-        {CATS_PERSONAS.includes(form.categoria)&&(<Field label="Cantidad de personas *"><input style={styles.input} type="number" min="1" value={form.personas} onChange={e=>set('personas',e.target.value)} placeholder="1" required/></Field>Field>)}
+      <option value="">— Seleccioná —</option>
+        {CATS.map(c=><option key={c}>{c}</option>)}
+      </select>
+      </Field>
+        {form.categoria==='Alojamiento'&&(<Field label="Cantidad de noches *"><input style={styles.input} type="number" min="1" value={form.noches} onChange={e=>set('noches',e.target.value)} placeholder="1" required/></Field>)}
+        {CATS_PERSONAS.includes(form.categoria)&&(<Field label="Cantidad de personas *"><input style={styles.input} type="number" min="1" value={form.personas} onChange={e=>set('personas',e.target.value)} placeholder="1" required/></Field>)}
         {form.categoria==='Combustible'&&(<>
-        <Field label="Cantidad de litros *"><input style={styles.input} type="number" step="0.01" min="0" value={form.litros} onChange={e=>set('litros',e.target.value)} placeholder="0.00" required/></Field>Field>
-        <Field label="Tipo de combustible *"><select style={{...styles.input,appearance:'none'}} value={form.tipo_combustible} onChange={e=>set('tipo_combustible',e.target.value)}>{TIPOS_COMBUSTIBLE.map(t=><option key={t}>{t}</option>option>)}</select>select></Field>Field>
-        </>>)}
+        <Field label="Cantidad de litros *"><input style={styles.input} type="number" step="0.01" min="0" value={form.litros} onChange={e=>set('litros',e.target.value)} placeholder="0.00" required/></Field>
+        <Field label="Tipo de combustible *"><select style={{...styles.input,appearance:'none'}} value={form.tipo_combustible} onChange={e=>set('tipo_combustible',e.target.value)}>{TIPOS_COMBUSTIBLE.map(t=><option key={t}>{t}</option>)}</select></Field>
+        </>)}
       <Field label="Forma de pago *">
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
         {FPS.map(fp=>(<label key={fp} style={{display:'flex',alignItems:'center',gap:'8px',border:`1.5px solid ${form.forma_pago===fp?colors.red:colors.border}`,borderRadius:'7px',padding:'10px 14px',cursor:'pointer',background:form.forma_pago===fp?'#FFF3F3':colors.white,fontFamily:fonts.body,fontSize:'14px'}}>
         <input type="radio" name="forma_pago" value={fp} checked={form.forma_pago===fp} onChange={()=>set('forma_pago',fp)} style={{accentColor:colors.red}}/>{fp}
-        </label>label>))}
-      </div>div>
-      </Field>Field>
-      </div>div>
+        </label>))}
+      </div>
+      </Field>
+      </div>
       <Field label="Observaciones (opcional)">
       <textarea style={{...styles.input,height:'80px',resize:'vertical'}} value={form.observaciones} onChange={e=>set('observaciones',e.target.value)} placeholder="Ej: viaje a Rosario…"/>
-      </Field>Field>
-        {error&&<div style={{background:'#FFF3F3',border:`1.5px solid ${colors.red}`,borderRadius:'7px',padding:'12px 14px',color:colors.red,fontSize:'14px',marginBottom:'16px'}}>{error}</div>div>}
-      <button type="submit" style={{...styles.btnPrimary,marginBottom:'10px'}} disabled={submitting}>{submitting?'Guardando…':'✓ Confirmar y guardar'}</button>button>
-      <button type="button" style={styles.btnSecondary} onClick={onBack} disabled={submitting}>← Volver</button>button>
-      </form>form>
-    </div>div>
+      </Field>
+        {error&&<div style={{background:'#FFF3F3',border:`1.5px solid ${colors.red}`,borderRadius:'7px',padding:'12px 14px',color:colors.red,fontSize:'14px',marginBottom:'16px'}}>{error}</div>}
+      <button type="submit" style={{...styles.btnPrimary,marginBottom:'10px'}} disabled={submitting}>{submitting?'Guardando…':'✓ Confirmar y guardar'}</button>
+      <button type="button" style={styles.btnSecondary} onClick={onBack} disabled={submitting}>← Volver</button>
+      </form>
+    </div>
     );
 }
