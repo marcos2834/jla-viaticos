@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 const client=new Anthropic({apiKey:process.env.ANTHROPIC_API_KEY});
 const PROMPT=`Sos un asistente de extracción de datos de comprobantes fiscales argentinos. Analizá la imagen y devolvé ÚNICAMENTE un objeto JSON con estos campos (sin texto extra):
-{"fecha_comprobante":"YYYY-MM-DD o null","proveedor":"razón social o null","cuit":"XX-XXXXXXXX-X o null","tipo_comprobante":"Factura A|Factura B|Factura C|Ticket|Otro","numero":"número o null","moneda":"ARS|USD|EUR","subtotal":null,"iva_21":null,"iva_105":null,"monto_total":null,"observaciones":"notas o null"}
+{"fecha_comprobante":"YYYY-MM-DD o null","hora_comprobante":"HH:MM o null","proveedor":"razón social o null","cuit":"XX-XXXXXXXX-X o null","tipo_comprobante":"Factura A|Factura B|Factura C|Ticket|Otro","numero":"número o null","moneda":"ARS|USD|EUR","subtotal":null,"iva_21":null,"iva_105":null,"monto_total":null,"observaciones":"notas o null"}
 Categorías válidas: Alojamiento, Desayuno, Almuerzo, Cena, Refrigerio, Estacionamiento, Peaje, Pasajes, Combustible, Otros.
-Reglas: ARS por defecto; USD en observaciones; Factura A con IVA discriminado: completá subtotal/iva_21/iva_105; números sin símbolos ni separadores.`;
+Reglas: ARS por defecto; USD en observaciones; Factura A con IVA discriminado: completá subtotal/iva_21/iva_105; hora_comprobante en formato 24hs (HH:MM) si el comprobante muestra un horario, sino null; números sin símbolos ni separadores.`;
 export default async function handler(req,res){
   if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});
   const{base64,mimeType}=req.body;
