@@ -8,7 +8,7 @@ const TIPOS_COMBUSTIBLE=['GNC','Nafta Super','Nafta Premium','Gasoil'];
 const CATS_PERSONAS=['Alojamiento','Desayuno','Almuerzo','Cena','Refrigerio'];
 function Field({label,children}){return(<div style={{marginBottom:'16px'}}><label style={styles.label}>{label}</label>{children}</div>);}
 export default function ConfirmStep({extracted,isManual,identity,onSubmit,onBack}){
-const[form,setForm]=useState({fecha_comprobante:extracted?.fecha_comprobante||'',hora_comprobante:extracted?.hora_comprobante||'',proveedor:extracted?.proveedor||'',cuit:extracted?.cuit||'',tipo_comprobante:extracted?.tipo_comprobante||'Ticket',numero:extracted?.numero||'',moneda:extracted?.moneda||'ARS',subtotal:extracted?.subtotal||'',iva_21:extracted?.iva_21||'',iva_105:extracted?.iva_105||'',monto_total:extracted?.monto_total||'',observaciones:extracted?.observaciones||'',destino:'',cliente_estudio:'',categoria:'',forma_pago:'',noches:'',personas:'',litros:'',tipo_combustible:'GNC'});
+const[form,setForm]=useState({fecha_comprobante:extracted?.fecha_comprobante||'',hora_comprobante:extracted?.hora_comprobante||'',proveedor:extracted?.proveedor||'',cuit:extracted?.cuit||'',tipo_comprobante:extracted?.tipo_comprobante||'Ticket',numero:extracted?.numero||'',moneda:extracted?.moneda||'ARS',subtotal:extracted?.subtotal||'',iva_21:extracted?.iva_21||'',iva_105:extracted?.iva_105||'',monto_total:extracted?.monto_total||'',observaciones:extracted?.observaciones||'',destino:'',cliente_estudio:'',categoria:extracted?.categoria||'',forma_pago:'',noches:'',personas:extracted?.personas?String(extracted.personas):'1',litros:'',tipo_combustible:'GNC'});
 const[submitting,setSubmitting]=useState(false);
 const[error,setError]=useState('');
 const set=(k,v)=>setForm(f=>({...f,[k]:v}));
