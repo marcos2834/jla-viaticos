@@ -1,5 +1,14 @@
 import{getSheets,getDrive,SHEET_ID,DRIVE_FOLDER_ID}from './_sheets.js';
+import{normDominio,dominioValido,COL_DOMINIO,HEADER_DOMINIO}from './_dominio.js';
 import{PassThrough}from 'stream';
+// Garantiza que la columna Dominio tenga encabezado (idempotente: solo escribe si está vacío).
+async function ensureHeaderDominio(sheets){
+try{
+const r=await sheets.spreadsheets.values.get({spreadsheetId:SHEET_ID,range:`Movimientos!${COL_DOMINIO}1`});
+const actual=((r.data.values||[])[0]||[])[0];
+if(!actual)await sheets.spreadsheets.values.update({spreadsheetId:SHEET_ID,range:`Movimientos!${COL_DOMINIO}1`,valueInputOption:'RAW',requestBody:{values:[[HEADER_DOMINIO]]}});
+}catch(e){console.warn('header dominio warn:',e.message);}
+}
 function getPeriod(d){if(!d)return'';const dt=new Date(d);if(isNaN(dt))return'';return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 async function uploadToDrive(drive,base64,mimeType,fileName,folderId){
@@ -19,6 +28,13 @@ export default async function handler(req,res){
 if(req.method!=='POST')return res.status(405).json({error:'Method not allowed'});
 try{
 const{_fileBase64,_fileMime,_fileName,...data}=req.body;
+// Combustible: litros y dominio obligatorios (se imputa el gasto al vehículo / VSAT).
+const esCombustible=data.categoria==='Combustible';
+const dominio=esCombustible?normDominio(data.dominio):'';
+if(esCombustible){
+if(!(parseFloat(data.litros)>0))return res.status(400).json({error:'Combustible: ingresá la cantidad de litros (mayor a 0).'});
+if(!dominioValido(dominio))return res.status(400).json({error:'Combustible: ingresá un dominio válido (ej. AB123CD o ABC123).'});
+}
 const sheets=await getSheets();
 const drive=await getDrive();
 let fotoUrl='';
@@ -54,9 +70,11 @@ data.personas||'',
 data.litros||'',
 data.tipo_combustible||'',
 data.hora_comprobante||'',
-data.cliente_estudio||''
+data.cliente_estudio||'',
+dominio
 ];
-await sheets.spreadsheets.values.append({spreadsheetId:SHEET_ID,range:'Movimientos!A:AH',valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:[row]}});
+if(esCombustible)await ensureHeaderDominio(sheets);
+await sheets.spreadsheets.values.append({spreadsheetId:SHEET_ID,range:`Movimientos!A:${COL_DOMINIO}`,valueInputOption:'RAW',insertDataOption:'INSERT_ROWS',requestBody:{values:[row]}});
 res.json({ok:true,id,supera_tope,foto_url:fotoUrl});
 }catch(e){console.error('submit error:',e.message,e.stack);res.status(500).json({error:e.message});}
 }

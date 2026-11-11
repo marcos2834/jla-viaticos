@@ -1,5 +1,6 @@
-import React,{useState}from 'react';
+import React,{useState,useEffect}from 'react';
 import{colors,styles,fonts}from '../theme.js';
+import{normDominio,dominioValido,getLastDominio,saveLastDominio}from '../utils/dominio.js';
 const CATS=['Alojamiento','Desayuno','Almuerzo','Cena','Refrigerio','Estacionamiento','Peaje','Pasajes','Combustible','Otros'];
 const FPS=['Efectivo','Tarjeta JLA'];
 const TIPOS=['Factura A','Factura B','Factura C','Ticket','Otro'];
@@ -8,23 +9,34 @@ const TIPOS_COMBUSTIBLE=['GNC','Nafta Super','Nafta Premium','Gasoil'];
 const CATS_PERSONAS=['Alojamiento','Desayuno','Almuerzo','Cena','Refrigerio'];
 function Field({label,children}){return(<div style={{marginBottom:'16px'}}><label style={styles.label}>{label}</label>{children}</div>);}
 export default function ConfirmStep({extracted,isManual,identity,onSubmit,onBack}){
-const[form,setForm]=useState({fecha_comprobante:extracted?.fecha_comprobante||'',hora_comprobante:extracted?.hora_comprobante||'',proveedor:extracted?.proveedor||'',cuit:extracted?.cuit||'',tipo_comprobante:extracted?.tipo_comprobante||'Ticket',numero:extracted?.numero||'',moneda:extracted?.moneda||'ARS',subtotal:extracted?.subtotal||'',iva_21:extracted?.iva_21||'',iva_105:extracted?.iva_105||'',monto_total:extracted?.monto_total||'',observaciones:extracted?.observaciones||'',destino:'',cliente_estudio:'',categoria:extracted?.categoria||'',forma_pago:'',noches:'',personas:extracted?.personas?String(extracted.personas):'1',litros:'',tipo_combustible:'GNC'});
+const[form,setForm]=useState({fecha_comprobante:extracted?.fecha_comprobante||'',hora_comprobante:extracted?.hora_comprobante||'',proveedor:extracted?.proveedor||'',cuit:extracted?.cuit||'',tipo_comprobante:extracted?.tipo_comprobante||'Ticket',numero:extracted?.numero||'',moneda:extracted?.moneda||'ARS',subtotal:extracted?.subtotal||'',iva_21:extracted?.iva_21||'',iva_105:extracted?.iva_105||'',monto_total:extracted?.monto_total||'',observaciones:extracted?.observaciones||'',destino:'',cliente_estudio:'',categoria:extracted?.categoria||'',forma_pago:'',noches:'',personas:extracted?.personas?String(extracted.personas):'1',litros:extracted?.litros?String(extracted.litros):'',tipo_combustible:TIPOS_COMBUSTIBLE.includes(extracted?.tipo_combustible)?extracted.tipo_combustible:'',dominio:normDominio(extracted?.dominio)||getLastDominio()});
 const[submitting,setSubmitting]=useState(false);
 const[error,setError]=useState('');
+const[dominios,setDominios]=useState([]);
+const[dominioTocado,setDominioTocado]=useState(false);
 const set=(k,v)=>setForm(f=>({...f,[k]:v}));
+// Patentes ya cargadas por cualquier colaborador: se sugieren para evitar errores de tipeo.
+useEffect(()=>{fetch('/api/dominios').then(r=>r.json()).then(d=>setDominios(d.dominios||[])).catch(()=>{});},[]);
+const dominioInvalido=form.categoria==='Combustible'&&dominioTocado&&!dominioValido(form.dominio);
 async function handleSubmit(e){
 e.preventDefault();
 if(!form.categoria){setError('Seleccioná una categoría');return;}
 if(!form.forma_pago){setError('Seleccioná la forma de pago');return;}
 if(form.categoria==='Alojamiento'&&!form.noches){setError('Ingresá la cantidad de noches');return;}
 if(CATS_PERSONAS.includes(form.categoria)&&!form.personas){setError('Ingresá la cantidad de personas');return;}
-if(form.categoria==='Combustible'&&!form.litros){setError('Ingresá la cantidad de litros');return;}
+if(form.categoria==='Combustible'){
+if(!(parseFloat(form.litros)>0)){setError('Ingresá la cantidad de litros (mayor a 0)');return;}
+if(!form.tipo_combustible){setError('Seleccioná el tipo de combustible');return;}
+if(!dominioValido(form.dominio)){setDominioTocado(true);setError('Ingresá el dominio (patente) del vehículo. Ej: AB123CD o ABC123');return;}
+}
 setError('');setSubmitting(true);
 try{
-const payload={...form,titular:identity.nombre,tarjeta:identity.tarjeta,sociedad:identity.sociedad,cuil_titular:identity.cuil,modo_carga:isManual?'Manual':'Foto',_fileBase64:extracted?._fileBase64,_fileMime:extracted?._fileMime,_fileName:extracted?._fileName};
+const dominio=form.categoria==='Combustible'?normDominio(form.dominio):'';
+const payload={...form,dominio,titular:identity.nombre,tarjeta:identity.tarjeta,sociedad:identity.sociedad,cuil_titular:identity.cuil,modo_carga:isManual?'Manual':'Foto',_fileBase64:extracted?._fileBase64,_fileMime:extracted?._fileMime,_fileName:extracted?._fileName};
 const res=await fetch('/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 const data=await res.json();
 if(!res.ok)throw new Error(data.error||'Error al guardar');
+if(dominio)saveLastDominio(dominio);
 onSubmit(data);
 }catch(err){setError(err.message);}finally{setSubmitting(false);}
 }
@@ -73,7 +85,12 @@ return(
 {CATS_PERSONAS.includes(form.categoria)&&(<Field label="Cantidad de personas *"><input style={styles.input} type="number" min="1" value={form.personas} onChange={e=>set('personas',e.target.value)} placeholder="1" required/></Field>)}
 {form.categoria==='Combustible'&&(<>
 <Field label="Cantidad de litros *"><input style={styles.input} type="number" step="0.01" min="0" value={form.litros} onChange={e=>set('litros',e.target.value)} placeholder="0.00" required/></Field>
-<Field label="Tipo de combustible *"><select style={{...styles.input,appearance:'none'}} value={form.tipo_combustible} onChange={e=>set('tipo_combustible',e.target.value)}>{TIPOS_COMBUSTIBLE.map(t=><option key={t}>{t}</option>)}</select></Field>
+<Field label="Tipo de combustible *"><select style={{...styles.input,appearance:'none',borderColor:!form.tipo_combustible?colors.red:colors.border}} value={form.tipo_combustible} onChange={e=>set('tipo_combustible',e.target.value)} required><option value="">— Seleccioná —</option>{TIPOS_COMBUSTIBLE.map(t=><option key={t}>{t}</option>)}</select></Field>
+<Field label="Dominio / patente del vehículo *">
+<input style={{...styles.input,textTransform:'uppercase',letterSpacing:'1px',fontWeight:600,borderColor:dominioInvalido?colors.red:colors.border}} value={form.dominio} onChange={e=>set('dominio',normDominio(e.target.value).slice(0,7))} onBlur={()=>setDominioTocado(true)} placeholder="AB123CD" list="dominios-jla" autoCapitalize="characters" autoComplete="off" required/>
+<datalist id="dominios-jla">{dominios.map(d=><option key={d} value={d}/>)}</datalist>
+<p style={{fontSize:'12px',color:dominioInvalido?colors.red:colors.midGray,marginTop:'4px'}}>{dominioInvalido?'Formato inválido. Usá AB123CD (Mercosur) o ABC123.':'Patente del vehículo que cargaste. Se usa para imputar el gasto al vehículo.'}</p>
+</Field>
 </>)}
 <Field label="Forma de pago *">
 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
